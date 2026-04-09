@@ -1,0 +1,7 @@
+{
+  "fasta": "seqs.fasta",
+  "model": "facebook/esm2_t12_35M_UR50D",
+  "output": "esm2_35m_regenerated.npz",
+  "batch_size": 4,
+  "device": "auto"
+}

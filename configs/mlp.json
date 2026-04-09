@@ -1,0 +1,14 @@
+{
+  "fasta": "seqs.fasta",
+  "edges": "9606.protein.physical.links.detailed.v12.0.txt",
+  "embeddings": "esm2_35m.npz",
+  "min_score": 700,
+  "seeds": [0, 1, 2],
+  "epochs": 30,
+  "patience": 5,
+  "lr": 0.001,
+  "weight_decay": 1e-05,
+  "hidden_dim": 512,
+  "dropout": 0.2,
+  "batch_size": 2048
+}
