@@ -110,7 +110,7 @@ def _sample_random_negative_edges(
     if not left_nodes or not right_nodes:
         raise ValueError("Negative sampling requires non-empty candidate node sets.")
     if len(left_nodes.union(right_nodes)) < 2:
-        raise ValueError("Negative sampling requires at least two distinct candidate nodes.")
+        raise ValueError("Negative sampling requires at least 2 distinct candidate nodes.")
 
     blocked_set = _candidate_pair_edge_set(positive_set, left_nodes, right_nodes).union(
         _candidate_pair_edge_set(forbidden_set, left_nodes, right_nodes)

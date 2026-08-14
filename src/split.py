@@ -82,7 +82,7 @@ def _candidate_nodes(num_nodes, candidate_nodes):
     nodes = np.asarray(candidate_nodes, dtype=np.int64).reshape(-1)
     nodes = np.unique(nodes)
     if len(nodes) == 0 or np.any(nodes < 0) or np.any(nodes >= num_nodes):
-        raise ValueError("candidate_nodes indices outside [0, num_nodes)")
+        raise ValueError("candidate_nodes indices are outside [0, num_nodes)")
     return nodes
 
 
