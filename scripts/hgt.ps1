@@ -1,0 +1,52 @@
+python scripts/run_graphsage.py `
+  --experiment multispecies_hetero `
+  --graph-type hetero `
+  --encoder hgt `
+  --decoder mlp `
+  --fasta "C:\Users\ThinkPad\Downloads\sage\data\proteins.fasta" `
+  --protein-metadata "C:\Users\ThinkPad\Downloads\sage\data\protein_metadata.tsv" `
+  --ppi-edges "C:\Users\ThinkPad\Downloads\sage\data\ppi_edges.tsv" `
+  --protein-to-orthogroup "C:\Users\ThinkPad\Downloads\sage\data\protein_to_orthogroup.tsv" `
+  --embeddings "C:\Users\ThinkPad\Downloads\sage\data\esm2_35m.npz" `
+  --target-species "9606" `
+  --device cpu `
+  --hgt-heads 4 `
+  --hgt-dropout 0.2 `
+  --hgt-layers 2 `
+  --output-dir "C:\Users\ThinkPad\Downloads\sage\outputs\default_35m"
+
+python scripts/run_graphsage.py `
+  --experiment multispecies_hetero `
+  --graph-type hetero `
+  --encoder hgt `
+  --decoder mlp `
+  --fasta "C:\Users\ThinkPad\Downloads\sage\data\proteins.fasta" `
+  --protein-metadata "C:\Users\ThinkPad\Downloads\sage\data\protein_metadata.tsv" `
+  --ppi-edges "C:\Users\ThinkPad\Downloads\sage\data\ppi_edges.tsv" `
+  --protein-to-orthogroup "C:\Users\ThinkPad\Downloads\sage\data\protein_to_orthogroup.tsv" `
+  --embeddings "C:\Users\ThinkPad\Downloads\sage\data\esm2_35m.npz" `
+  --target-species "9606" `
+  --device cpu `
+  --hgt-heads 4 `
+  --hgt-dropout 0.2 `
+  --hgt-layers 2 `
+  --negative-mode two_hop_hard `
+  --output-dir "C:\Users\ThinkPad\Downloads\sage\outputs\hardneg_35m"
+
+python scripts/run_graphsage.py `
+  --experiment multispecies_hetero `
+  --graph-type hetero `
+  --encoder hgt `
+  --decoder mlp `
+  --fasta "C:\Users\ThinkPad\Downloads\sage\data\proteins.fasta" `
+  --protein-metadata "C:\Users\ThinkPad\Downloads\sage\data\protein_metadata.tsv" `
+  --ppi-edges "C:\Users\ThinkPad\Downloads\sage\data\ppi_edges.tsv" `
+  --protein-to-orthogroup "C:\Users\ThinkPad\Downloads\sage\data\protein_to_orthogroup.tsv" `
+  --embeddings "C:\Users\ThinkPad\Downloads\sage\data\esm2_35m.npz" `
+  --target-species "9606" `
+  --device cpu `
+  --hgt-heads 4 `
+  --hgt-dropout 0.2 `
+  --hgt-layers 2 `
+  --split-mode node_disjoint `
+  --output-dir "C:\Users\ThinkPad\Downloads\sage\outputs\node_disjoint_35m"

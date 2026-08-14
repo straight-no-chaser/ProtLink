@@ -75,6 +75,182 @@ You can swap in `esm2_t33_650m.npz` or a regenerated embedding file.
 
 Each script runs seeds `0 1 2` by default and writes per-seed metrics plus an aggregate summary under `outputs/`.
 
+## Experiment Layers
+
+The repository keeps one codebase with two additive experiment layers:
+
+- single-species baselines: cosine, MLP pair baseline, GraphSAGE, GT, and the existing heterograph HGT options
+- multispecies heterograph experiments: cross-species protein + orthogroup graphs with human PPI as the prediction target
+
+## Phase-2 Options
+
+The existing defaults stay unchanged. The options below are strictly opt-in.
+
+- GraphSAGE decoder: `--decoder mlp` switches from the default dot-product decoder to an MLP decoder over `z_u`, `z_v`, `abs(z_u - z_v)`, and `z_u * z_v`
+- Residual fusion: `--residual concat` or `--residual add` augments GraphSAGE node representations; default is `none`
+- Hard negatives: `--negative-mode two_hop_hard` prefers non-edges that are within two hops in the training graph, with fallback to random negatives when needed
+- Harder split: `--split-mode node_disjoint` preferentially places edges involving held-out nodes into validation and test
+- Strict inductive split: `--split-mode node_inductive` holds out validation/test protein nodes from target PPI training edges and evaluates unseen-node to seen-node interactions
+
+Example fairer GraphSAGE comparison:
+
+```bash
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --decoder mlp --residual concat
+```
+
+Example harder evaluation:
+
+```bash
+python scripts/run_mlp.py --embeddings esm2_35m.npz --device auto --negative-mode two_hop_hard
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --decoder mlp --residual concat --split-mode node_disjoint --negative-mode two_hop_hard
+```
+
+Strict cold-start node split:
+
+```bash
+python -m src.train mlp --embeddings esm2_35m.npz --fasta seqs.fasta --edges 9606.protein.physical.links.detailed.v12.0.txt --split-mode node_inductive
+python -m src.train graph --embeddings esm2_35m.npz --fasta seqs.fasta --edges 9606.protein.physical.links.detailed.v12.0.txt --split-mode node_inductive
+```
+
+In `node_inductive`, training nodes and held-out validation/test nodes are disjoint. The training graph contains only train-node to train-node target PPI edges, while validation/test positives connect unseen validation/test proteins to seen training proteins. Held-out protein sequence embeddings remain available at evaluation time; their held-out target PPI labels and target PPI topology are not used for training message passing.
+
+## Graph Transformer
+
+The graph training pipeline also supports a Graph Transformer encoder without changing the existing GraphSAGE path.
+
+- enable with `--encoder gt`
+- GT-specific flags: `--gt-heads`, `--gt-dropout`, `--gt-layers`
+- GT reuses the existing decoder, residual, split, and negative-sampling options
+
+Examples:
+
+```bash
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --encoder gt
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --encoder gt --negative-mode two_hop_hard
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --encoder gt --split-mode node_disjoint
+```
+
+## Heterograph / HGT Experiments
+
+The graph training pipeline also supports an additive heterograph path for protein-protein prediction with pathway and domain context.
+
+- enable with `--graph-type hetero --encoder hgt`
+- required context files:
+  - `--pathway-edges`: tabular `protein_id<TAB>pathway_id`
+  - `--domain-edges`: tabular `protein_id<TAB>domain_id`
+- prediction target remains protein-protein `interacts` links
+- HGT-specific flags: `--hgt-heads`, `--hgt-dropout`, `--hgt-layers`
+
+Examples:
+
+```bash
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --graph-type hetero --encoder hgt --pathway-edges pathway_edges.tsv --domain-edges domain_edges.tsv --decoder mlp
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --graph-type hetero --encoder hgt --pathway-edges pathway_edges.tsv --domain-edges domain_edges.tsv --decoder mlp --negative-mode two_hop_hard
+python scripts/run_graphsage.py --embeddings esm2_35m.npz --device auto --graph-type hetero --encoder hgt --pathway-edges pathway_edges.tsv --domain-edges domain_edges.tsv --decoder mlp --split-mode node_disjoint
+```
+
+## Multispecies Heterograph Experiments
+
+The first multispecies version stays minimal and uses only:
+
+- `protein` nodes
+- `orthogroup` nodes
+- intra-species PPI edges as graph context
+- protein-to-orthogroup membership edges
+
+Prediction targets are still human-human PPI edges. Non-human PPI edges and protein-orthogroup edges are context only.
+
+Required multispecies inputs:
+
+- `--fasta proteins.fasta`
+  - FASTA headers are protein IDs, for example `>9606.ENSP00000000233`
+- `--protein-metadata protein_metadata.tsv`
+  - tab-separated columns: `protein_id`, `species_taxid`, `species_name`
+- `--ppi-edges ppi_edges.tsv`
+  - tab-separated columns: `protein1`, `protein2`, `species_taxid`, `combined_score`, `source`
+  - only intra-species edges are expected
+- `--protein-to-orthogroup protein_to_orthogroup.tsv`
+  - tab-separated columns: `protein_id`, `orthogroup_id`
+- `--embeddings esm2_t33_650m.npz`
+  - uses the same embedding loader and `.npz` formats as the single-species workflows
+
+Example metadata file:
+
+```tsv
+protein_id	species_taxid	species_name
+9606.ENSP00000000233	9606	Homo_sapiens
+10090.ENSMUSP00000012345	10090	Mus_musculus
+```
+
+Example PPI edge file:
+
+```tsv
+protein1	protein2	species_taxid	combined_score	source
+9606.ENSP00000000233	9606.ENSP00000354587	9606	812	string
+10090.ENSMUSP00000012345	10090.ENSMUSP00000054321	10090	901	string
+```
+
+Example orthogroup file:
+
+```tsv
+protein_id	orthogroup_id
+9606.ENSP00000000233	OG0001234
+10090.ENSMUSP00000012345	OG0001234
+```
+
+Basic multispecies HGT run:
+
+```bash
+python scripts/run_graphsage.py \
+  --experiment multispecies_hetero \
+  --graph-type hetero \
+  --encoder hgt \
+  --decoder mlp \
+  --fasta proteins.fasta \
+  --protein-metadata protein_metadata.tsv \
+  --ppi-edges ppi_edges.tsv \
+  --protein-to-orthogroup protein_to_orthogroup.tsv \
+  --embeddings esm2_t33_650m.npz \
+  --target-species 9606 \
+  --device auto
+```
+
+Hard-negative multispecies run:
+
+```bash
+python scripts/run_graphsage.py \
+  --experiment multispecies_hetero \
+  --graph-type hetero \
+  --encoder hgt \
+  --decoder mlp \
+  --fasta proteins.fasta \
+  --protein-metadata protein_metadata.tsv \
+  --ppi-edges ppi_edges.tsv \
+  --protein-to-orthogroup protein_to_orthogroup.tsv \
+  --embeddings esm2_t33_650m.npz \
+  --target-species 9606 \
+  --negative-mode two_hop_hard \
+  --device auto
+```
+
+Node-disjoint multispecies run:
+
+```bash
+python scripts/run_graphsage.py \
+  --experiment multispecies_hetero \
+  --graph-type hetero \
+  --encoder hgt \
+  --decoder mlp \
+  --fasta proteins.fasta \
+  --protein-metadata protein_metadata.tsv \
+  --ppi-edges ppi_edges.tsv \
+  --protein-to-orthogroup protein_to_orthogroup.tsv \
+  --embeddings esm2_t33_650m.npz \
+  --target-species 9606 \
+  --split-mode node_disjoint \
+  --device auto
+```
+
 ## Data Processing
 
 - parse `seqs.fasta`
@@ -109,6 +285,7 @@ Examples:
 - `outputs/cosine/<embedding_name>/seed_0_metrics.json`
 - `outputs/mlp/<embedding_name>/seed_0_best_model.pt`
 - `outputs/graphsage/<embedding_name>/summary.json`
+- `outputs/multispecies_hetero/<embedding_name>/summary.json`
 
 ## Summarize Results
 

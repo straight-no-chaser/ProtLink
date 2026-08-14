@@ -1,7 +1,6 @@
 import numpy as np
 
-from src.embedding_utils import filter_embeddings, load_embedding_npz
-from src.fasta_utils import read_fasta_ids
+from src.data_utils import filter_embeddings, load_embedding_npz, read_fasta_ids
 
 
 def canonical_edge(u, v):
@@ -14,14 +13,14 @@ def read_string_edges(path, min_score=700):
     with open(path, "r", encoding="utf-8") as handle:
         header = handle.readline().strip().split()
         if not header:
-            raise ValueError("Edge file is empty.")
+            raise ValueError()
 
         try:
             protein1_idx = header.index("protein1")
             protein2_idx = header.index("protein2")
             score_idx = header.index("combined_score")
         except ValueError as exc:
-            raise ValueError("Edge file must contain protein1, protein2, and combined_score columns.") from exc
+            raise ValueError("Corrupted columns") from exc
 
         for raw_line in handle:
             parts = raw_line.strip().split()
@@ -38,7 +37,14 @@ def read_string_edges(path, min_score=700):
     return sorted(edges)
 
 
-def build_dataset(fasta_path, edge_path, embedding_path, min_score=700):
+def to_undirected_edge_index(edges):
+    if len(edges) == 0:
+        return np.zeros((2, 0), dtype=np.int64)
+    reverse_edges = edges[:, [1, 0]]
+    return np.concatenate([edges, reverse_edges], axis=0).T
+
+
+def build_homo_dataset(fasta_path, edge_path, embedding_path, min_score=700):
     fasta_ids = set(read_fasta_ids(fasta_path))
     embedding_ids, x, _ = load_embedding_npz(embedding_path)
     common_ids = fasta_ids.intersection(embedding_ids)
@@ -52,11 +58,6 @@ def build_dataset(fasta_path, edge_path, embedding_path, min_score=700):
     filtered_edges.sort()
     edges = np.asarray(filtered_edges, dtype=np.int64)
 
-    if len(protein_ids) == 0:
-        raise ValueError("No proteins remain after intersecting FASTA and embeddings.")
-    if len(edges) == 0:
-        raise ValueError("No edges remain after filtering.")
-
     return {
         "protein_ids": protein_ids,
         "x": x.astype(np.float32),
@@ -64,10 +65,3 @@ def build_dataset(fasta_path, edge_path, embedding_path, min_score=700):
         "edges": edges,
         "num_nodes": len(protein_ids),
     }
-
-
-def to_undirected_edge_index(edges):
-    if len(edges) == 0:
-        return np.zeros((2, 0), dtype=np.int64)
-    reverse_edges = edges[:, [1, 0]]
-    return np.concatenate([edges, reverse_edges], axis=0).T

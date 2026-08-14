@@ -1,15 +1,17 @@
 import argparse
+from collections import OrderedDict
 
 import numpy as np
 import torch
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
-from src.fasta_utils import read_fasta
+from src.data_utils import read_fasta
+from src.training_utils import resolve_device
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Generate per-sequence ESM2 embeddings from FASTA.")
+    parser = argparse.ArgumentParser()
     parser.add_argument("--fasta", default="seqs.fasta")
     parser.add_argument("--model", required=True)
     parser.add_argument("--output", required=True)
@@ -19,13 +21,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def resolve_device(device):
-    if device == "auto":
-        return "cuda" if torch.cuda.is_available() else "cpu"
-    return device
-
-
 def mean_pool_without_special_tokens(hidden_states, attention_mask):
+    # Mean pooling of residue-level emb to protein-level per-sequence emb
+    # Use mean pooling for stable inference and low cost, can switch to attention pooling or domain-aware pooling later
     pooled = []
     lengths = attention_mask.sum(dim=1)
 
@@ -84,7 +82,6 @@ def main():
 
     embeddings = np.concatenate(all_embeddings, axis=0)
     np.savez_compressed(args.output, ids=np.asarray(all_ids), embeddings=embeddings)
-    print(f"Saved embeddings to {args.output} with shape {embeddings.shape}")
 
 
 if __name__ == "__main__":
