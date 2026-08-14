@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.homo_graph_utils import canonical_edge
+from protlink.homo_graph_utils import canonical_edge
 
 
 def edge_array_to_set(edges):

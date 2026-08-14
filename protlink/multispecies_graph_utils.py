@@ -2,8 +2,8 @@ import numpy as np
 import torch
 from torch_geometric.data import HeteroData
 
-from src.data_utils import filter_embeddings, load_embedding_npz, read_fasta_ids, read_tsv_rows
-from src.homo_graph_utils import canonical_edge, to_undirected_edge_index
+from protlink.data_utils import filter_embeddings, load_embedding_npz, read_fasta_ids, read_tsv_rows
+from protlink.homo_graph_utils import canonical_edge, to_undirected_edge_index
 
 
 def _normalize_taxid(value):

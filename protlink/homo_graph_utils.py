@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.data_utils import filter_embeddings, load_embedding_npz, read_fasta_ids
+from protlink.data_utils import filter_embeddings, load_embedding_npz, read_fasta_ids
 
 
 def canonical_edge(u, v):

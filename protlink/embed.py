@@ -6,8 +6,8 @@ import torch
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
-from src.data_utils import read_fasta
-from src.training_utils import resolve_device
+from protlink.data_utils import read_fasta
+from protlink.training_utils import resolve_device
 
 
 def parse_args():

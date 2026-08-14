@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from torch_geometric.nn import HGTConv, SAGEConv, TransformerConv
 
-from src.data_utils import build_pair_features
+from protlink.data_utils import build_pair_features
 
 
 class PairMLP(nn.Module):

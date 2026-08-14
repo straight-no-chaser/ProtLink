@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch_geometric.data import HeteroData
 
-from src.homo_graph_utils import to_undirected_edge_index
+from protlink.homo_graph_utils import to_undirected_edge_index
 
 
 def read_typed_pairs(path):

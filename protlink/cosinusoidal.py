@@ -4,11 +4,11 @@ from pathlib import Path
 
 import numpy as np
 
-from src.homo_graph_utils import build_homo_dataset
-from src.metrics import compute_metrics, select_threshold, summarize_metric_dicts
-from src.negative_sampling import build_two_hop_negative_candidates, edge_array_to_set, sample_negative_edges
-from src.split import split_positive_edges
-from src.training_utils import build_eval_arrays, write_predictions
+from protlink.homo_graph_utils import build_homo_dataset
+from protlink.metrics import compute_metrics, select_threshold, summarize_metric_dicts
+from protlink.negative_sampling import build_two_hop_negative_candidates, edge_array_to_set, sample_negative_edges
+from protlink.split import split_positive_edges
+from protlink.training_utils import build_eval_arrays, write_predictions
 
 
 SPLIT_MODES = ["edge_random", "node_disjoint", "node_inductive"]

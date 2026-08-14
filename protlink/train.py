@@ -11,14 +11,14 @@ import torch.nn as nn
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.data_utils import build_pair_features
-from src.homo_graph_utils import build_homo_dataset, to_undirected_edge_index
-from src.hetero_graph_utils import build_pathway_domain_hetero_data
-from src.metrics import compute_metrics, select_threshold, summarize_metric_dicts
-from src.models import DotDecoder, GraphSAGEEncoder, GraphTransformerEncoder, HGTEncoder, PairMLP, PairMLPDecoder
-from src.negative_sampling import build_two_hop_negative_candidates, edge_array_to_set, sample_negative_edges
-from src.split import split_positive_edges
-from src.training_utils import build_eval_arrays, resolve_device, set_seed, write_predictions
+from protlink.data_utils import build_pair_features
+from protlink.homo_graph_utils import build_homo_dataset, to_undirected_edge_index
+from protlink.hetero_graph_utils import build_pathway_domain_hetero_data
+from protlink.metrics import compute_metrics, select_threshold, summarize_metric_dicts
+from protlink.models import DotDecoder, GraphSAGEEncoder, GraphTransformerEncoder, HGTEncoder, PairMLP, PairMLPDecoder
+from protlink.negative_sampling import build_two_hop_negative_candidates, edge_array_to_set, sample_negative_edges
+from protlink.split import split_positive_edges
+from protlink.training_utils import build_eval_arrays, resolve_device, set_seed, write_predictions
 
 
 SPLIT_MODES = ["edge_random", "node_disjoint", "node_inductive"]
@@ -983,7 +983,7 @@ def train_graph_one_seed_hetero(args, dataset, output_dir, seed):
 
 
 def train_graph_one_seed_multispecies(args, dataset, output_dir, seed):
-    from src.multispecies_graph_utils import build_multispecies_hetero_data
+    from protlink.multispecies_graph_utils import build_multispecies_hetero_data
 
     seed_start_time = time.perf_counter()
     set_seed(seed)
@@ -1243,7 +1243,7 @@ def main_graph():
     os.makedirs(output_dir, exist_ok=True)
 
     if args.experiment == "multispecies_hetero":
-        from src.multispecies_graph_utils import build_multispecies_dataset
+        from protlink.multispecies_graph_utils import build_multispecies_dataset
 
         dataset = build_multispecies_dataset(
             args.fasta,
