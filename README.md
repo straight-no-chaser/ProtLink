@@ -1,7 +1,7 @@
 # ProtLink: Multispecies HGT for interactome prediction
 
 <p align="center">
-  <img src="./asset/header.png" alt="ProtLink multispecies graph and HGT pipeline" width="100%">
+  <img src="./assets/header.png" alt="ProtLink multispecies graph and HGT pipeline" width="100%">
 </p>
 
 ProtLink predicts protein–protein interactions (PPIs) by combining pretrained ESM2 sequence embeddings with graph context. The repository compares sequence-only and graph-based baselines, then extends the graph across species using orthogroups + HGT while keeping monospecies PPI prediction as the target task, and yielded **0.980 test AP** with ESM2-650M and **0.968 AP** under node-disjoint evaluation with multispecies HGT for *Homo sapiens*.
@@ -9,7 +9,7 @@ ProtLink predicts protein–protein interactions (PPIs) by combining pretrained 
 🤗 **Models / artifacts:** [ProtLink-Multispecies-HGT](https://huggingface.co/straight-no-chaser/ProtLink-Multispecies-HGT)
 
 <p align="center">
-  <img src="./asset/performance_heatmap.png" alt="ProtLink test AP across models and evaluation settings" width="95%">
+  <img src="./assets/performance_heatmap.png" alt="ProtLink test AP across models and evaluation settings" width="95%">
 </p>
 
 ## Install
