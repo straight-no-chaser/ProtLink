@@ -6,6 +6,6 @@ ProtLink combines frozen ESM-2 protein embeddings, species-specific interaction 
   <img src="./assets/header.png" alt="ProtLink: ESM-2 sequence features, multispecies protein–orthogroup graph, HGT encoder, and interaction prediction" width="95%">
 </p>
 
-Detailed methods and experimental results are reported in this arXiv preprint: [arXiv](https://huggingface.co/straight-no-chaser/ProtLink-Multispecies-HGT)
+Detailed methods and experimental results are reported in this arXiv preprint: [arXiv](https://arxiv.org/abs/2611.11017)
 
 🤗 **Model artifacts:** [ProtLink-Multispecies-HGT](https://huggingface.co/straight-no-chaser/ProtLink-Multispecies-HGT)
